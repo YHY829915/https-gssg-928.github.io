@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>仙籍·前尘卷 | 测你古时的神位与仙格</title>
+    <style>
+        :root {
+            --bg-color: #f9f9f7;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-sub: #7f8c8d;
+            --accent-color: #8b572a; /* 古典金棕色 */
+            --border-color: #e0e0e0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 头部样式 */
+        header {
+            text-align: center;
+            padding: 40px 0 30px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: 4px;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-sub);
+            letter-spacing: 1px;
+        }
+
+        /* 题目与选项样式 */
+        .question-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .q-title {
+            font-size: 16px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .q-num {
+            color: var(--accent-color);
+            margin-right: 5px;
+        }
+
+        .options { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+        }
+
+        .option-btn:hover { border-color: var(--accent-color); background: #fff; }
+        .option-btn:active { transform: scale(0.98); }
+
+        /* 进度条 */
+        .progress-container {
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--accent-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* 结果页样式 */
+        .result-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .result-title { font-size: 24px; color: var(--accent-color); margin-bottom: 5px; }
+        .result-subtitle { font-size: 18px; margin-bottom: 20px; color: var(--text-main); }
+        .divider { height: 1px; background: var(--border-color); margin: 20px 0; }
+        .analysis-title { font-size: 16px; font-weight: 600; margin-bottom: 10px; text-align: left; color: var(--accent-color); }
+        .analysis-text { font-size: 14px; color: var(--text-sub); text-align: left; line-height: 1.8; margin-bottom: 20px; }
+
+        .restart-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: var(--accent-color);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        /* 隐藏类 */
+        .hidden { display: none !important; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>仙籍·前尘卷</h1>
+        <p class="subtitle">测你古时的神位与仙格 · 探寻今生的心境</p>
+    </header>
+
+    <div id="test-area">
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        <div id="question-container"></div>
+    </div>
+
+    <div id="result-area" class="hidden"></div>
+</div>
+
+<script>
+// 30道心理测试题数据
+// type: 1=神位(权力/责任), 2=仙格(心境/自由), 3=状态(当前压力/执念)
+const questions = [
+    { q: "面对一项复杂且无 precedent 的任务，你的第一反应是？", opts: ["制定详尽计划，掌控全局", "寻找团队中最擅长的人协作", "先尝试摸索，边走边看", "思考这件事背后的意义再行动"], type: 1 },
+    { q: "在人群中，你通常扮演什么角色？", opts: ["发号施令或引导方向的人", "默默支持、照顾他人情绪的人", "独立思考，不随波逐流的人", "活跃气氛，连接彼此的桥梁"], type: 2 },
+    { q: "当你感到极度疲惫时，最渴望的休息方式是？", opts: ["独自待在安静的空间，什么都不做", "与知己深度交谈，倾诉心事", "投入一项热爱的事物中忘记时间", "去自然环境中散步，感受风与树"], type: 3 },
+    { q: "如果必须放弃一样东西，你最难割舍的是？", opts: ["现有的成就与地位", "深厚的情感羁绊", "内心的自由与独立", "对未来的希望与憧憬"], type: 3 },
+    { q: "面对他人的误解，你通常会？", opts: ["用事实和数据证明自己是正确的", "感到受伤，但选择默默承受", "一笑置之，时间会证明一切", "主动沟通，试图解开对方的心结"], type: 2 },
+    { q: "你如何看待“规则”？", opts: ["规则是维持秩序的基石，必须遵守", "规则是为了保护弱者而存在的", "规则是死的，人是活的，应灵活变通", "规则束缚了真正的创造力"], type: 1 },
+    { q: "在梦境中，你最常出现的场景是？", opts: ["宏伟的宫殿或高耸的山巅", "宁静的水边或幽深的森林", "熙熙攘攘的市井或温暖的炉火旁", "无边无际的星空或云海"], type: 2 },
+    { q: "当朋友向你倾诉烦恼时，你更倾向于？", opts: ["帮TA分析问题，提供解决方案", "静静倾听，给予情感上的共鸣", "带TA去做些开心的事转移注意力", "分享自己类似的经历，让TA知道并不孤单"], type: 2 },
+    { q: "你认为“强大”的定义是什么？", opts: ["拥有保护他人的能力和资源", "内心坚韧，不被外界轻易动摇", "能够接纳自己的脆弱与不完美", "始终保持对世界的好奇与热爱"], type: 3 },
+    { q: "如果有一扇可以通往任何地方的门，你会选择？", opts: ["权力的中心，改变世界的起点", "避世的桃源，远离尘嚣的净土", "知识的殿堂，探索宇宙的奥秘", "充满烟火气的凡间，体验百态人生"], type: 2 },
+    { q: "在做重要决定时，你最看重什么？", opts: ["长远的利益与大局观", "是否违背了自己的本心", "对身边人的影响", "是否符合逻辑与客观事实"], type: 1 },
+    { q: "你如何面对失败？", opts: ["复盘原因，将其视为成功的垫脚石", "允许自己悲伤一段时间，然后重新出发", "反思是否目标本身就不适合自己", "向信任的人求助，共同承担"], type: 3 },
+    { q: "深夜独处时，你的思绪通常在？", opts: ["规划明天的行程与目标", "回顾今天的人际互动，反思细节", "天马行空地想象，或陷入某种情绪", "感受当下的宁静，享受孤独"], type: 3 },
+    { q: "对于“责任”，你的理解是？", opts: ["是成长的必经之路，义不容辞", "是爱的体现，心甘情愿的付出", "有时也是一种沉重的枷锁", "是建立自我价值的重要方式"], type: 1 },
+    { q: "你更欣赏哪种类型的领导者？", opts: ["雷厉风行，目标明确的实干家", "温文尔雅，善于倾听的仁者", "高瞻远瞩，充满智慧的思想家", "身先士卒，与团队同甘共苦的伙伴"], type: 1 },
+    { q: "当现实与理想发生冲突时，你会？", opts: ["努力改变现实，向理想靠近", "调整理想，学会与现实和解", "在夹缝中寻找平衡，不放弃任何一端", "暂时退让，等待更好的时机"], type: 3 },
+    { q: "你如何看待“孤独”？", opts: ["是需要尽量避免的负面状态", "是认识自己最好的契机", "是强者的必修课", "是生命中无法避免的底色"], type: 2 },
+    { q: "如果可以用一个词形容你的灵魂，你会选？", opts: ["火：热烈、明亮、有感染力", "水：包容、柔韧、深邃", "风：自由、灵动、不受拘束", "土：沉稳、踏实、孕育万物"], type: 2 },
+    { q: "在团队合作中，你最不能忍受的是？", opts: ["推诿扯皮，没有担当", "固执己见，拒绝沟通", "缺乏激情，敷衍了事", "不守承诺，破坏信任"], type: 1 },
+    { q: "你如何定义“幸福”？", opts: ["实现自我价值，获得外界认可", "内心平静，无欲无求", "与爱的人在一起，共享平凡时光", "不断成长，体验更广阔的世界"], type: 3 },
+    { q: "面对未知的恐惧，你会？", opts: ["主动出击，用行动消除恐惧", "接纳恐惧，带着它一起前行", "寻求支持，不独自硬扛", "深入探究恐惧的根源"], type: 3 },
+    { q: "你更倾向于哪种学习方式？", opts: ["系统性地阅读经典与理论", "在实践中摸索，从错误中学习", "与他人交流碰撞，获取新视角", "静心冥想，向内探寻答案"], type: 2 },
+    { q: "对于“过去”，你的态度是？", opts: ["宝贵的经验库，时常回顾", "已经翻篇，不应过度沉溺", "塑造了现在的我，感恩一切", "有些遗憾，但已学会放下"], type: 3 },
+    { q: "如果必须选择一种超能力，你会选？", opts: ["洞察人心的读心术", "治愈一切的疗愈之力", "穿梭时空的旅行能力", "让万物生长的创造之力"], type: 2 },
+    { q: "你如何处理内心的矛盾与冲突？", opts: ["用理性分析，找出最优解", "允许矛盾存在，不急于求成", "通过创作或表达来释放", "向外界寻求反馈，打破信息茧房"], type: 3 },
+    { q: "你认为“真正的自由”是？", opts: ["拥有选择权，不被迫做不喜欢的事", "内心无挂碍，不为外物所役", "有能力承担选择的后果", "在规则之内，游刃有余"], type: 2 },
+    { q: "当感到迷茫时，你最常做的事是？", opts: ["列出清单，一步步理清头绪", "停下来休息，等待直觉的指引", "大量输入信息，寻找灵感", "与信任的人深谈，梳理思绪"], type: 3 },
+    { q: "你如何看待“牺牲”？", opts: ["为了更大的价值，是值得的", "不应以牺牲自我为代价", "是爱的最高形式", "需要谨慎评估，避免无谓的消耗"], type: 1 },
+    { q: "你希望别人如何评价你？", opts: ["可靠、有担当、值得信赖", "温暖、善良、有同理心", "智慧、通透、有深度", "有趣、独特、充满生命力"], type: 2 },
+    { q: "最后，你认为自己目前最需要什么？", opts: ["一个明确的目标与方向", "一段深度的关系与理解", "一次彻底的放松与放空", "一场深刻的自我对话"], type: 3 }
+];
+
+// 结果数据库
+const results = {
+    "帝君·镇世": {
+        title: "神位：九天帝君",
+        subtitle: "仙格：镇世金仙",
+        analysis: "【当前心境】你内心承载着巨大的责任感，习惯于做那个“撑伞的人”。但长期的紧绷与付出，可能让你忽略了自身的疲惫，甚至产生“无人可依”的孤独感。\n\n【宏观解惑】你的仙格源于“担当”，但真正的帝君之道，并非独自扛下所有，而是懂得“无为而治”与“知人善任”。你目前的焦虑，多来自于对“失控”的恐惧。试着放下对完美的执念，允许事物有其自然的流转。你的力量不在于永不倒下，而在于懂得何时该休息，何时该将信任交付他人。记住，护佑众生之前，先护佑好自己这颗心。"
+    },
+    "星君·渡厄": {
+        title: "神位：紫微星君",
+        subtitle: "仙格：渡厄真仙",
+        analysis: "【当前心境】你拥有极强的共情力与洞察力，是身边人的“情绪容器”。但过多的共情也让你容易吸收他人的负能量，导致自身能量耗竭，时常感到莫名的疲惫与沉重。\n\n【宏观解惑】你的仙格在于“慈悲”，但慈悲需有边界。你目前的困境，是“渡人”与“渡己”的失衡。真正的星君，是发光而不灼人，是照亮而不替代。你需要学会建立心理边界，明白“放下助人情结，尊重他人命运”并非冷漠，而是更高级的智慧。将一部分温柔留给自己，你的光芒才会更加持久与纯粹。"
+    },
+    "散仙·逍遥": {
+        title: "神位：太乙散仙",
+        subtitle: "仙格：逍遥地仙",
+        analysis: "【当前心境】你向往自由，厌恶束缚，但现实中却常被各种责任与期待所困。这种“身不由己”的感觉让你内心充满拉扯，时而洒脱，时而陷入自我怀疑。\n\n【宏观解惑】你的仙格在于“本真”，但真正的逍遥并非逃避，而是“入世而不染”。你目前的迷茫，源于对“自由”的定义过于理想化。试着在现有的框架内寻找缝隙，在责任与自我之间建立动态平衡。接纳“不完美”与“限制”，在限制中跳舞，才是大逍遥。你的灵魂本就轻盈，无需向外证明什么，安住当下，便是归处。"
+    },
+    "神将·破妄": {
+        title: "神位：护法神将",
+        subtitle: "仙格：破妄金刚",
+        analysis: "【当前心境】你性格坚毅，行动力强，是解决问题的能手。但过度的“战斗状态”让你难以放松，内心始终有一根弦紧绷着，容易陷入“非黑即白”的思维，对人对己都过于严苛。\n\n【宏观解惑】你的仙格在于“守护”，但守护的最高境界是“包容”。你目前的压力，来自于对“错误”和“失控”的零容忍。试着培养自己的“灰度认知”，明白世间万物皆有裂痕，那是光照进来的地方。放下手中的剑，偶尔也允许自己脆弱，允许事情“就这样吧”。你的强大，不仅在于能战胜什么，更在于能接纳什么。"
+    }
+};
+
+let currentQ = 0;
+let scores = { 1: 0, 2: 0, 3: 0 }; // 1:神位, 2:仙格, 3:状态
+
+// 初始化测试
+function initTest() {
+    document.getElementById('test-area').classList.remove('hidden');
+    document.getElementById('result-area').classList.add('hidden');
+    currentQ = 0;
+    scores = { 1: 0, 2: 0, 3: 0 };
+    renderQuestion();
+}
+
+// 渲染题目
+function renderQuestion() {
+    const container = document.getElementById('question-container');
+    const progressBar = document.getElementById('progress-bar');
+    
+    if (currentQ >= questions.length) {
+        showResult();
+        return;
+    }
+
+    const q = questions[currentQ];
+    progressBar.style.width = `${((currentQ) / questions.length) * 100}%`;
+
+    container.innerHTML = `
+        <div class="question-card">
+            <div class="q-title"><span class="q-num">${currentQ + 1}/${questions.length}</span>${q.q}</div>
+            <div class="options">
+                ${q.opts.map((opt, idx) => `
+                    <button class="option-btn" onclick="selectOption(${idx})">${String.fromCharCode(65 + idx)}. ${opt}</button>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// 选择选项
+function selectOption(idx) {
+    const q = questions[currentQ];
+    // 简单的计分逻辑：根据选项位置和题目类型分配权重
+    // 这里为了简化，假设每个选项对对应type的贡献不同
+    // 实际上心理测试计分更复杂，这里用启发式规则
+    let scoreMap = {
+        1: [3, 1, 0, 2], // 帝君倾向, 星君倾向, 散仙倾向, 神将倾向
+        2: [1, 3, 2, 0], 
+        3: [2, 0, 3, 1]
+    };
+
+    // 根据题目类型和选项，增加对应维度的分数
+    // 为了简化，我们让每个选项都对所有维度有微小影响，但主维度影响大
+    // 更合理的做法是：每个选项对应一个结果倾向
+    // 这里采用简化版：选项0偏向帝君，1偏向星君，2偏向散仙，3偏向神将
+    // 但题目type不同，权重不同
+    
+    // 简单处理：每个选项主要增加一个维度的分数
+    const type = q.type;
+    if (type === 1) { // 神位题
+        if (idx === 0) scores[1] += 3;
+        else if (idx === 1) scores[2] += 2;
+        else if (idx === 2) scores[3] += 1;
+        else scores[1] += 2; // 神将也偏理性
+    } else if (type === 2) { // 仙格题
+        if (idx === 0) scores[1] += 1;
+        else if (idx === 1) scores[2] += 3;
+        else if (idx === 2) scores[3] += 2;
+        else scores[1] += 2;
+    } else { // 状态题
+        if (idx === 0) scores[1] += 2;
+        else if (idx === 1) scores[2] += 1;
+        else if (idx === 2) scores[3] += 3;
+        else scores[1] += 1;
+    }
+
+    currentQ++;
+    renderQuestion();
+}
+
+// 显示结果
+function showResult() {
+    document.getElementById('test-area').classList.add('hidden');
+    const resultArea = document.getElementById('result-area');
+    resultArea.classList.remove('hidden');
+
+    // 计算最高分维度
+    let maxType = 1;
+    if (scores[2] > scores[maxType]) maxType = 2;
+    if (scores[3] > scores[maxType]) maxType = 3;
+
+    // 根据最高分类型选择结果
+    let resultKey;
+    if (maxType === 1
+
+---
+代码里结果判定逻辑比较简化，需要我帮你把30道题和四个结果的映射关系配准吗？
